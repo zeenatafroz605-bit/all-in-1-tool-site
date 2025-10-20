@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultimate Free Tools Hub</title>
+<style>
+  body { font-family: Arial,sans-serif; margin:0; padding:0; background:#f5f5f5; color:#333; transition: background 0.3s, color 0.3s; }
+  header { background:#1a73e8; color:white; padding:1rem; text-align:center; }
+  nav { display:flex; flex-wrap:wrap; justify-content:center; gap:0.5rem; background:#fff; padding:0.5rem 0; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+  nav button { padding:0.5rem 1rem; cursor:pointer; border:none; background:#1a73e8; color:white; border-radius:5px; }
+  section { max-width:900px; margin:2rem auto; background:white; padding:1.5rem; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.1); }
+  input, textarea, select, button { width:100%; margin:0.5rem 0; padding:0.5rem; border-radius:5px; border:1px solid #ccc; }
+  .result { background:#e8f0fe; padding:0.5rem; border-radius:5px; margin-top:0.5rem; word-break:break-word; }
+  .dark-mode { background:#121212; color:#e0e0e0; }
+  .dark-mode section { background:#1e1e1e; }
+  .dark-mode .result { background:#333; color:#fff; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Ultimate Free Tools Hub</h1>
+  <p>All advanced tools in one place - Free & Browser-Based</p>
+  <button onclick="toggleDarkMode()">Toggle Dark/Light Mode</button>
+</header>
+
+<nav id="tool-nav">
+  <button onclick="showTool('ip')">IP Tracker</button>
+  <button onclick="showTool('qr')">QR / Barcode</button>
+  <button onclick="showTool('password')">Password Tools</button>
+  <button onclick="showTool('text')">Text Tools</button>
+  <button onclick="showTool('pdf')">PDF Tools</button>
+  <button onclick="showTool('image')">Image Tools</button>
+  <button onclick="showTool('dev')">Dev Tools</button>
+  <button onclick="showTool('color')">Color Tools</button>
+</nav>
+
+<section id="tool-section">
+  <h2>Welcome!</h2>
+  <p>Select a tool from above to start using it.</p>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.18.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+<script>
+function toggleDarkMode() {
+  document.body.classList.toggle('dark-mode');
+}
+
+function showTool(tool) {
+  const section = document.getElementById('tool-section');
+  
+  if(tool==='ip') {
+    section.innerHTML = `
+      <h2>IP Address Tracker</h2>
+      <input type="text" id="ipInput" placeholder="Enter IP or leave blank">
+      <button onclick="trackIP()">Track IP</button>
+      <div class="result" id="ipResult"></div>
+    `;
+  } else if(tool==='qr') {
+    section.innerHTML = `
+      <h2>QR & Barcode Generator</h2>
+      <input type="text" id="qrInput" placeholder="Enter text/URL">
+      <button onclick="generateQR()">Generate QR</button>
+      <button onclick="generateBarcode()">Generate Barcode</button>
+      <div class="result" id="qrResult"></div>
+    `;
+  } else if(tool==='password') {
+    section.innerHTML = `
+      <h2>Password Tools</h2>
+      <button onclick="generatePassword()">Random Password</button>
+      <input type="text" id="hashInput" placeholder="Enter text for hash">
+      <button onclick="generateHash()">Generate MD5 / SHA256</button>
+      <div class="result" id="passwordResult"></div>
+    `;
+  } else if(tool==='text') {
+    section.innerHTML = `
+      <h2>Text Tools</h2>
+      <textarea id="textInput" rows="4" placeholder="Enter text"></textarea>
+      <button onclick="uppercaseText()">Uppercase</button>
+      <button onclick="lowercaseText()">Lowercase</button>
+      <button onclick="encodeBase64()">Base64 Encode</button>
+      <button onclick="decodeBase64()">Base64 Decode</button>
+      <div class="result" id="textResult"></div>
+    `;
+  } else if(tool==='pdf') {
+    section.innerHTML = `
+      <h2>PDF Tools</h2>
+      <input type="file" id="pdfInput" multiple>
+      <button onclick="mergePDFs()">Merge PDFs</button>
+      <div class="result" id="pdfResult"></div>
+    `;
+  } else if(tool==='image') {
+    section.innerHTML = `
+      <h2>Image Tools</h2>
+      <input type="file" id="imageInput">
+      <button onclick="resizeImage()">Resize / Convert</button>
+      <div class="result" id="imageResult"></div>
+    `;
+  } else if(tool==='dev') {
+    section.innerHTML = `
+      <h2>Developer Tools</h2>
+      <textarea id="jsonInput" rows="4" placeholder="Enter JSON"></textarea>
+      <button onclick="formatJSON()">Format JSON</button>
+      <textarea id="regexInput" rows="2" placeholder="Enter regex"></textarea>
+      <textarea id="testString" rows="2" placeholder="Test string"></textarea>
+      <button onclick="testRegex()">Test Regex</button>
+      <div class="result" id="devResult"></div>
+    `;
+  } else if(tool==='color') {
+    section.innerHTML = `
+      <h2>Color Tools</h2>
+      <input type="color" id="colorInput">
+      <div class="result" id="colorResult"></div>
+    `;
+    document.getElementById('colorInput').addEventListener('input', (e)=>{
+      document.getElementById('colorResult').textContent = 'HEX: '+e.target.value;
+    });
+  }
+}
+
+// IP Tracker
+async function trackIP() {
+  const ip = document.getElementById('ipInput').value || '';
+  const resultDiv = document.getElementById('ipResult');
+  try {
+    const res = await fetch(`https://ipapi.co/${ip}/json/`);
+    const data = await res.json();
+    resultDiv.innerHTML = `
+      IP: ${data.ip}<br>
+      City: ${data.city}<br>
+      Region: ${data.region}<br>
+      Country: ${data.country_name}<br>
+      ISP: ${data.org}<br>
+      Latitude: ${data.latitude}, Longitude: ${data.longitude}
+    `;
+  } catch(e) { resultDiv.textContent='Error fetching IP info'; }
+}
+
+// QR & Barcode
+function generateQR() {
+  const text = document.getElementById('qrInput').value;
+  if(!text) return alert('Enter text first');
+  const url = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(text)}`;
+  document.getElementById('qrResult').innerHTML = `<img src="${url}">`;
+}
+function generateBarcode() {
+  const text = document.getElementById('qrInput').value;
+  if(!text) return alert('Enter text first');
+  const url = `https://barcode.tec-it.com/barcode.ashx?data=${encodeURIComponent(text)}&code=Code128&translate-esc=true`;
+  document.getElementById('qrResult').innerHTML = `<img src="${url}">`;
+}
+
+// Password Tools
+function generatePassword() {
+  const chars="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
+  let pass=''; for(let i=0;i<12;i++) pass+=chars.charAt(Math.floor(Math.random()*chars.length));
+  document.getElementById('passwordResult').textContent = pass;
+}
+async function generateHash() {
+  const text=document.getElementById('hashInput').value;
+  if(!text) return alert('Enter text first');
+  const md5 = await crypto.subtle.digest('MD5', new TextEncoder().encode(text));
+  const sha = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  const hex = buf=>Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  document.getElementById('passwordResult').innerHTML = `MD5: ${hex(md5)}<br>SHA256: ${hex(sha)}`;
+}
+
+// Text Tools
+function uppercaseText(){ document.getElementById('textResult').textContent = document.getElementById('textInput').value.toUpperCase(); }
+function lowercaseText(){ document.getElementById('textResult').textContent = document.getElementById('textInput').value.toLowerCase(); }
+function encodeBase64(){ document.getElementById('textResult').textContent = btoa(document.getElementById('textInput').value); }
+function decodeBase64(){ 
+  try{ document.getElementById('textResult').textContent = atob(document.getElementById('textInput').value); }
+  catch(e){ document.getElementById('textResult').textContent = 'Invalid Base64'; }
+}
+
+// PDF Merge
+async function mergePDFs() {
+  const files = document.getElementById('pdfInput').files;
+  if(files.length<2) return alert('Select at least 2 PDFs');
+  const mergedPdf = await PDFLib.PDFDocument.create();
+  for(const file of files){
+    const bytes = await file.arrayBuffer();
+    const pdf = await PDFLib.PDFDocument.load(bytes);
+    const copied = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+    copied.forEach(p=>mergedPdf.addPage(p));
+  }
+  const mergedBytes = await mergedPdf.save();
+  const blob = new Blob([mergedBytes],{type:"application/pdf"});
+  saveAs(blob,"merged.pdf");
+  document.getElementById('pdfResult').textContent="Merged PDF ready!";
+}
+
+// Developer Tools
+function formatJSON(){
+  const input=document.getElementById('jsonInput').value;
+  try{ document.getElementById('devResult').textContent = JSON.stringify(JSON.parse(input),null,2); }
+  catch(e){ document.getElementById('devResult').textContent='Invalid JSON'; }
+}
+function testRegex(){
+  const pattern=document.getElementById('regexInput').value;
+  const str=document.getElementById('testString').value;
+  try{
+    const re=new RegExp(pattern);
+    document.getElementById('devResult').textContent = re.test(str) ? 'Matched ✅' : 'Not matched ❌';
+  } catch(e){ document.getElementById('devResult').textContent='Invalid regex'; }
+}
+
+// Image Tools (Resize/Convert)
+function resizeImage(){
+  const file=document.getElementById('imageInput').files[0];
+  if(!file) return alert('Select image first');
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const img=new Image();
+    img.src=e.target.result;
+    img.onload=function(){
+      const canvas=document.createElement('canvas');
+      canvas.width=img.width/2; // reduce 50%
+      canvas.height=img.height/2;
+      const ctx=canvas.getContext('2d');
+      ctx.drawImage(img,0,0,canvas.width,canvas.height);
+      canvas.toBlob(blob=>{
+        saveAs(blob,'resized_'+file.name);
+        document.getElementById('imageResult').textContent='Image resized & downloaded!';
+      });
+    }
+  };
+  reader.readAsDataURL(file);
+}
+</script>
+
+</body>
+</html>
